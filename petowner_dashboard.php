@@ -341,37 +341,94 @@ $prescriptions = [];
       cursor: pointer;
     }
 
-  .event-card {
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: #ffffff; /* White box */
-  box-shadow: 0 6px 18px rgba(36,41,90,0.08); /* subtle shadow */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  cursor: pointer;
-}
-.event-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(36,41,90,0.12);
-}
-.event-date {
-  font-size: 12px;
-  font-weight: 600;
-  color: #5c4fff; /* accent color for date */
-}
-.event-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #222; /* black for title */
-}
-.event-time,
-.event-vet {
-  font-size: 12px;
-  color: #6b6f88;
-}
+    .event-card {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #ffffff; /* White box */
+      box-shadow: 0 6px 18px rgba(36,41,90,0.08); /* subtle shadow */
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .event-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(36,41,90,0.12);
+    }
+    .event-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5c4fff; /* accent color for date */
+    }
+    .event-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #222; /* black for title */
+    }
+    .event-time,
+    .event-vet {
+      font-size: 12px;
+      color: #6b6f88;
+    }
 
+    /* --- New Modal Styles for Pet Add --- */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1001; /* Above everything else */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      backdrop-filter: blur(4px); /* Subtle blur effect */
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto; /* 10% from the top and centered */
+      padding: 30px;
+      border-radius: 14px;
+      width: 90%; /* Wide for landscape view */
+      max-width: 600px; /* Max width to keep it reasonable */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: #222;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .modal-form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+      color: #5c6aa6;
+    }
+    .modal-form input, .modal-form select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .modal-form button {
+      margin-top: 20px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -392,19 +449,19 @@ $prescriptions = [];
           <h2 style="margin:0;color:var(--accent)">DIAGNOPET</h2>
           <div class="small">Manage your pet's health</div>
         </div>
-          <div style="display:flex;gap:12px;align-items:center">
-          <a class="btn-add" href="pet-add.php" role="button" style="text-decoration:none;display:inline-block;padding:10px 14px;border-radius:12px;color:#fff;background:var(--accent);box-shadow:0 8px 20px rgba(92,79,255,0.18);">Add Pets</a>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button type="button" class="btn-add" onclick="openPetModal()" style="text-decoration:none;display:inline-block;padding:10px 14px;border-radius:12px;color:#fff;background:var(--accent);box-shadow:0 8px 20px rgba(92,79,255,0.18);">Add Pets</button>
+          
           <button type="button" class="btn-logout" onclick="location.href='logoutpet.php'">Logout</button>
           <div class="avatar"><a href="profilepets.php" style="font-size:14px;text-decoration:none;color:inherit;"><?php echo htmlspecialchars($display_name); ?></a></div>
         </div>
       </div>
 
       <section class="grid" style="margin-top:16px">
-        <!-- left column: pets list -->
         <div class="card col-span-4">
           <h4 style="margin:0 0 12px 0">Your Pets</h4>
           <?php if (empty($pets)): ?>
-            <div class="pet-card" onclick="window.location.href='pet-add.php'" style="cursor:pointer;">
+            <div class="pet-card" onclick="openPetModal()" style="cursor:pointer;">
               <div class="pet-avatar">➕</div>
               <div class="pet-meta">
                 <h3 style="color:#8b8fb1">Add your first pet</h3>
@@ -418,7 +475,7 @@ $prescriptions = [];
                   <?php if (!empty($pet['avatar'])): ?>
                     <img src="uploads/<?php echo htmlspecialchars($pet['avatar']); ?>" alt="Pet Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
                   <?php else: ?>
-
+                    🐾
                   <?php endif; ?>
                 </div>
                 <div class="pet-meta">
@@ -434,7 +491,7 @@ $prescriptions = [];
               </div>
               <hr style="margin:10px 0;border:none;border-top:1px solid #f1f3fb">
             <?php endforeach; ?>
-            <button class="btn-add" onclick="window.location.href='pet-add.php'" style="width:100%;margin-top:10px;">Add More Pet</button>
+            <button class="btn-add" onclick="openPetModal()" style="width:100%;margin-top:10px;">Add More Pet</button>
           <?php endif; ?>
 
           <hr style="margin:14px 0;border:none;border-top:1px solid #f1f3fb">
@@ -457,7 +514,6 @@ $prescriptions = [];
           </div>
         </div>
 
-        <!-- middle column -->
         <div class="card col-span-4">
           <?php if (empty($symptoms_by_pet)): ?>
             <div style="display:flex;align-items:center;justify-content:center;color:#8b8fb1;font-size:14px;padding:20px;">
@@ -524,48 +580,29 @@ $prescriptions = [];
           <?php endif; ?>
         </div>
 
-        <!-- right column -->
-        <!--<div class="card col-span-3">
-          <h3 style="margin:0 0 8px 0">Appointment</h3>
-          <?php if (empty($appointment['date'])): ?>
-            <div class="small" style="color:#8b8fb1">No upcoming appointment. Schedule one with your vet!</div>
+        <div class="card col-span-3">
+          <h4 style="margin:0 0 12px 0; color:#000000">Cases</h4>
+          
+          <?php if (empty($events)): ?>
+            <div class="small" style="color:#8b8fb1;padding:12px 0; text-align:center;">
+              No upcoming events. Add reminders for vaccinations, appointments, or grooming!
+            </div>
           <?php else: ?>
-            <div class="small">Date: <?php echo htmlspecialchars($appointment['date']); ?> | <?php echo htmlspecialchars($appointment['time']); ?></div>
-            <div class="small">Vet: <?php echo htmlspecialchars($appointment['vet']); ?></div>
-            <div class="small">Place: <?php echo htmlspecialchars($appointment['place']); ?></div>
-          <?php endif; ?> -->
-
-          <hr style="margin:12px 0;border:none;border-top:1px solid #f1f3fb">
-
-<div class="card col-span-3">
-  <h4 style="margin:0 0 12px 0; color:#000000">Cases</h4>
-  
-  <?php if (empty($events)): ?>
-    <div class="small" style="color:#8b8fb1;padding:12px 0; text-align:center;">
-      No upcoming events. Add reminders for vaccinations, appointments, or grooming!
-    </div>
-  <?php else: ?>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <?php foreach($events as $e): ?>
-        <div class="event-card">
-          <div class="event-date"><?php echo htmlspecialchars(date('M d, Y', strtotime($e['date']))); ?></div>
-          <div class="event-level">Level of Threats: <?php echo htmlspecialchars($e['level']); ?> - Pet: <?php echo htmlspecialchars($e['pet']); ?></div>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
-</div>
-
-
-
-
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <?php foreach($events as $e): ?>
+                <div class="event-card">
+                  <div class="event-date"><?php echo htmlspecialchars(date('M d, Y', strtotime($e['date']))); ?></div>
+                  <div class="event-level">Level of Threats: <?php echo htmlspecialchars($e['level']); ?> - Pet: <?php echo htmlspecialchars($e['pet']); ?></div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
         </div>
       </section>
 
     </main>
   </div>
 
-  <!-- Artemis Chat Widget -->
   <div id="artemis-bubble">🐾</div>
   <div id="artemis-chatbox" class="hidden">
     <div class="chat-header">Artemis 🐾</div>
@@ -575,28 +612,68 @@ $prescriptions = [];
       <button>Send</button>
     </div>
   </div>
+  
+  <div id="petModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closePetModal()">&times;</span>
+      <h3 style="margin-top:0; color:var(--accent);">🐾 Add New Pet Details</h3>
+      <p class="small" style="color:#8b8fb1;">Please provide accurate information about your new pet.</p>
+
+      <form class="modal-form" action="pet-add.php" method="POST" enctype="multipart/form-data">
+        <label for="pet_name">Pet Name</label>
+        <input type="text" id="pet_name" name="pet_name" required>
+
+        <label for="pet_breed">Breed</label>
+        <input type="text" id="pet_breed" name="pet_breed" required>
+
+        <div style="display:flex; gap:15px;">
+          <div style="flex:1;">
+            <label for="pet_gender">Gender</label>
+            <select id="pet_gender" name="pet_gender" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label for="pet_age">Age (Years)</label>
+            <input type="number" id="pet_age" name="pet_age" min="0" required>
+          </div>
+          <div style="flex:1;">
+            <label for="pet_weight">Weight (kg)</label>
+            <input type="number" id="pet_weight" name="pet_weight" step="0.1" min="0" required>
+          </div>
+        </div>
+        
+        <label for="avatar">Upload Avatar (Optional)</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*">
+
+        <button type="submit" class="btn-add">Save Pet</button>
+      </form>
+    </div>
+  </div>
+
 
   <script src="chat-widget.js"></script>
   <script>
     // Button functionalities
     function navigate(section) {
-  switch(section) {
-    case 'Pets':
-      break;
-    case 'Vets':
-      window.location.href = 'vets.php';
-      break;
-    case 'Profile':
-      window.location.href = 'profilepets.php';
-      break;
-    case 'Settings':
-      window.location.href = 'help_support.php';
-      break;
-    case 'Support':
-      alert('Support section - Functionality to be implemented.');
-      break;
-  }
-}
+      switch(section) {
+        case 'Pets':
+          break;
+        case 'Vets':
+          window.location.href = 'vets.php';
+          break;
+        case 'Profile':
+          window.location.href = 'profilepets.php';
+          break;
+        case 'Settings':
+          window.location.href = 'help_support.php';
+          break;
+        case 'Support':
+          alert('Support section - Functionality to be implemented.');
+          break;
+      }
+    }
 
 
     function goBack() {
@@ -631,6 +708,24 @@ $prescriptions = [];
       button.classList.add('active');
     }
 
+    // --- New Modal Functions ---
+    const petModal = document.getElementById('petModal');
+
+    function openPetModal() {
+      petModal.style.display = 'block';
+    }
+
+    function closePetModal() {
+      petModal.style.display = 'none';
+    }
+
+    // Close the modal if the user clicks anywhere outside of the modal content
+    window.onclick = function(event) {
+      if (event.target == petModal) {
+        closePetModal();
+      }
+    }
+    // ----------------------------
   </script>
 </body>
 </html>
